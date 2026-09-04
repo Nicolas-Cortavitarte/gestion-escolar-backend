@@ -1,0 +1,29 @@
+# Archivos de ayuda y compilación
+HELP.md
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+# Entorno e IDEs (Antigravity, VS Code, IntelliJ, Eclipse/STS, NetBeans)
+.vscode/
+.idea/
+*.iml
+*.iws
+*.ipr
+.classpath
+.project
+.settings/
+.factorypath
+.apt_generated
+.springBeans
+.sts4-cache
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+
+# Archivos del sistema operativo y logs
+.DS_Store
+Thumbs.db
+*.log

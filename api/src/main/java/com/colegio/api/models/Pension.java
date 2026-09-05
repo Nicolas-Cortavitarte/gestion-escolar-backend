@@ -31,7 +31,7 @@ public class Pension {
     private Matricula matricula;
 
     @Column(name = "mes", nullable = false)
-    private String mes;
+    private Integer mes;
 
     @Column(name = "monto_base", nullable = false, precision = 10, scale = 2)
     private BigDecimal montoBase;

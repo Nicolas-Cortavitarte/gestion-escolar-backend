@@ -51,4 +51,11 @@ public class Matricula {
     protected void onCreate() {
         this.fechaRegistro = OffsetDateTime.now();
     }
+
+    @Builder.Default
+    @Column(name = "matricula_pagada", nullable = false)
+    private Boolean matriculaPagada = false;
+
+    @Column(name = "fecha_pago_matricula")
+    private OffsetDateTime fechaPagoMatricula;
 }

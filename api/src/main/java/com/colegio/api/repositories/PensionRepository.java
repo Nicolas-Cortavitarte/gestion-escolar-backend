@@ -1,6 +1,7 @@
 package com.colegio.api.repositories;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -9,6 +10,9 @@ import com.colegio.api.models.EstadoPension;
 import com.colegio.api.models.Pension;
 
 public interface PensionRepository extends JpaRepository<Pension, UUID> {
+
+    // Buscar pension por Id
+    Optional<Pension> findAllById(UUID id);
 
     // Obtener pensiones de una matrícula
     List<Pension> findByMatriculaId(UUID matriculaId);

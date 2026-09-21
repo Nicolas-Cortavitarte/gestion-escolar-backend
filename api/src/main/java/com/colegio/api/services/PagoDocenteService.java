@@ -15,7 +15,7 @@ public interface PagoDocenteService {
 
     List<PagoDocenteResponseDto> obtenerPorDocente(UUID id);
 
-    void genererPagoDelAnio(Docente docente, Integer anio);
+    void generarPagosDelAnio(Docente docente, Integer anio);
 
     PagoDocenteResponseDto marcarComoPagado(UUID id, OffsetDateTime fechaPago);
 }

@@ -1,6 +1,7 @@
 package com.colegio.api.controllers;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.colegio.api.dtos.ReporteConductaRequestDto;
@@ -28,6 +29,7 @@ public class ReporteConductaController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN','DOCENTE')")
     public ResponseEntity<ReporteConductaResponseDto> registrarOActualizar(
             @PathVariable UUID estudianteId,
             @Valid @RequestBody ReporteConductaRequestDto requestDto) {

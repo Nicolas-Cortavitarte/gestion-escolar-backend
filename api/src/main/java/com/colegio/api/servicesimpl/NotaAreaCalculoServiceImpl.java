@@ -49,7 +49,7 @@ public class NotaAreaCalculoServiceImpl implements NotaAreaCalculoService {
     public void recalcularPromedioArea(UUID estudianteId, UUID cursoId, Integer bimestre) {
 
         List<NotaCompetencia> notaCompetencias = competenciaRepository
-                .findByEstudianteIdAndAreaIdAndBimestre(estudianteId, cursoId, bimestre);
+                .findByEstudianteIdAndCompetencia_CursoIdAndBimestre(estudianteId, cursoId, bimestre);
 
         if (notaCompetencias.isEmpty()) {
             return;

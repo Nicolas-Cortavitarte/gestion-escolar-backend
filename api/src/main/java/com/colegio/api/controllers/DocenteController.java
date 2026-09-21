@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -37,7 +38,7 @@ public class DocenteController {
 
     @GetMapping("/{id}")
     public ResponseEntity<DocenteResponseDto> obtenerPorId(@PathVariable UUID id) {
-        return ResponseEntity.ok(docenteService.ontenerPorId(id));
+        return ResponseEntity.ok(docenteService.obtenerPorId(id));
     }
 
     @GetMapping("/buscar/{dni}")
@@ -46,24 +47,28 @@ public class DocenteController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<DocenteResponseDto> crear(@Valid @RequestBody DocenteRequestDto requestDto) {
         DocenteResponseDto creado = docenteService.crear(requestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(creado);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<DocenteResponseDto> actualizar(@PathVariable UUID id,
             @Valid @RequestBody DocenteUpdateDto requestDto) {
         return ResponseEntity.ok(docenteService.actualizar(id, requestDto));
     }
 
     @PutMapping("/{id}/desactivar")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> desactivar(@PathVariable UUID id) {
         docenteService.desactivar(id);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}/reactivar")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> reactivar(@PathVariable UUID id) {
         docenteService.reactivar(id);
         return ResponseEntity.noContent().build();

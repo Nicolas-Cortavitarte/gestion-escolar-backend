@@ -5,6 +5,9 @@ import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -42,6 +45,7 @@ public class PagoDocente {
     private OffsetDateTime fechaPago;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Builder.Default
     @Column(name = "estado", nullable = false)
     private EstadoPagoDocente estado = EstadoPagoDocente.PROGRAMADO;

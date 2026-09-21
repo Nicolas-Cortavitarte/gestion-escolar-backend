@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.colegio.api.dtos.PensionResponseDto;
@@ -36,6 +37,7 @@ public class PensionController {
     }
 
     @PatchMapping("/{id}/pagar")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<PensionResponseDto> marcarComoPagado(
             @PathVariable UUID id,
             @RequestParam(required = false) OffsetDateTime fechaPago) {

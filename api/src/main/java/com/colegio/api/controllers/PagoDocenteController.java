@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -41,6 +42,7 @@ public class PagoDocenteController {
     }
 
     @PatchMapping("/{id}/pagar")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<PagoDocenteResponseDto> marcarComoPagado(
             @PathVariable UUID id,
             @RequestParam(required = false) OffsetDateTime fechaPago) {

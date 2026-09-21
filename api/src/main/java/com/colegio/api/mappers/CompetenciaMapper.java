@@ -17,6 +17,7 @@ public class CompetenciaMapper {
         CompetenciaResponseDto responseDto = new CompetenciaResponseDto();
         responseDto.setId(entity.getId());
         responseDto.setNombreCompetencia(entity.getNombreCompetencia());
+        responseDto.setCursoId(entity.getCurso().getId());
 
         return responseDto;
     }

@@ -2,6 +2,9 @@ package com.colegio.api.models;
 
 import java.util.UUID;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -33,6 +36,7 @@ public class NotaArea {
     private Integer bimestre;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "calificativo_area", nullable = false)
     private NotaCualitativa calificativoArea;
 }

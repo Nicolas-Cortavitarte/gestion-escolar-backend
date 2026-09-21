@@ -11,7 +11,7 @@ import com.colegio.api.models.NotaCompetencia;
 public interface NotaCompetenciaRepository extends JpaRepository<NotaCompetencia, UUID> {
 
         // Buscar por Estudiante
-        Optional<NotaCompetencia> findByEstudianteId(UUID estudianteId);
+        List<NotaCompetencia> findByEstudianteId(UUID estudianteId);
 
         // Notas de un estudiante por bimestre
         List<NotaCompetencia> findByEstudianteIdAndBimestre(UUID estudianteId, Integer bimestre);
@@ -28,5 +28,6 @@ public interface NotaCompetenciaRepository extends JpaRepository<NotaCompetencia
                         List<Integer> bimestres);
 
         // Buscar notas de un estudiante por area y bimestre
-        List<NotaCompetencia> findByEstudianteIdAndAreaIdAndBimestre(UUID estudianteId, UUID areaId, Integer bimestre);
+        List<NotaCompetencia> findByEstudianteIdAndCompetencia_CursoIdAndBimestre(UUID estudianteId, UUID cursoId,
+                        Integer bimestre);
 }

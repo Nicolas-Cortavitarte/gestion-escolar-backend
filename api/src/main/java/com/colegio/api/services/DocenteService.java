@@ -9,7 +9,7 @@ import com.colegio.api.dtos.DocenteUpdateDto;
 
 public interface DocenteService {
 
-    DocenteResponseDto ontenerPorId(UUID id);
+    DocenteResponseDto obtenerPorId(UUID id);
 
     DocenteResponseDto buscarPorDni(String dni);
 

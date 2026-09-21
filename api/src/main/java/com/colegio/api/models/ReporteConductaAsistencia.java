@@ -57,4 +57,7 @@ public class ReporteConductaAsistencia {
 
     @Column(name = "apreciacion_tutor", columnDefinition = "TEXT")
     private String apreciacionTutor;
+
+    @Column(name = "anio_lectivo", nullable = false)
+    private Integer anioLectivo;
 }

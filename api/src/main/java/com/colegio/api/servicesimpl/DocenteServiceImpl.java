@@ -48,7 +48,7 @@ public class DocenteServiceImpl implements DocenteService {
     }
 
     @Override
-    public DocenteResponseDto ontenerPorId(UUID id) {
+    public DocenteResponseDto obtenerPorId(UUID id) {
         Docente docente = docenteRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Docente no encontrado con ID: " + id));
 
@@ -91,7 +91,7 @@ public class DocenteServiceImpl implements DocenteService {
         docente.setUsuario(usuarioGuardado);
         Docente creado = docenteRepository.save(docente);
 
-        pagoDocenteService.genererPagoDelAnio(docente, LocalDate.now().getYear());
+        pagoDocenteService.generarPagosDelAnio(docente, LocalDate.now().getYear());
 
         return docenteMapper.toDto(creado);
     }

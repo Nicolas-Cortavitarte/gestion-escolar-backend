@@ -3,6 +3,9 @@ package com.colegio.api.models;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -34,6 +37,7 @@ public class NotaCompetencia {
     private Integer bimestre;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "calificativo", nullable = false)
     private NotaCualitativa calificativo;
 

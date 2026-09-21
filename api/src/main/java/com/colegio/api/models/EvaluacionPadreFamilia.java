@@ -46,4 +46,7 @@ public class EvaluacionPadreFamilia {
     @Enumerated(EnumType.STRING)
     @Column(name = "cumple_pagos_institucion")
     private NotaCualitativa cumplePagosInstitucion;
+
+    @Column(name = "anio_lectivo", nullable = false)
+    private Integer anioLectivo;
 }

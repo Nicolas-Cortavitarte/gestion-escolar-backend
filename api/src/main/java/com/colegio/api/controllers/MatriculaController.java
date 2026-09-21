@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -44,12 +45,14 @@ public class MatriculaController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MatriculaResponseDto> crear(@Valid @RequestBody MatriculaRequestDto requestDto) {
         MatriculaResponseDto creada = matriculaService.crear(requestDto);
         return new ResponseEntity<>(creada, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MatriculaResponseDto> actualizar(
             @PathVariable UUID id,
             @Valid @RequestBody MatriculaRequestDto requestDto) {
@@ -57,6 +60,7 @@ public class MatriculaController {
     }
 
     @PatchMapping("/{id}/pagar-matricula")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MatriculaResponseDto> marcarMatriculaComoPagada(
             @PathVariable UUID id,
             @RequestParam(required = false) OffsetDateTime fechaPago) {
@@ -64,6 +68,7 @@ public class MatriculaController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> eliminar(@PathVariable UUID id) {
         matriculaService.eliminar(id);
         return ResponseEntity.noContent().build();

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -40,17 +41,20 @@ public class CursoController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CursoResponseDto> crear(@Valid @RequestBody CursoRequestDto cursoRequestDto) {
         return ResponseEntity.ok(cursoService.crear(cursoRequestDto));
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CursoResponseDto> actualizar(@Valid @PathVariable UUID id,
             @RequestBody CursoRequestDto cursoRequestDto) {
         return ResponseEntity.ok(cursoService.actualizar(id, cursoRequestDto));
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> eliminar(@PathVariable UUID id) {
         cursoService.eliminar(id);
         return ResponseEntity.noContent().build();

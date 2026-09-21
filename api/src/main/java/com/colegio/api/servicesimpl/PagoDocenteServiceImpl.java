@@ -60,7 +60,7 @@ public class PagoDocenteServiceImpl implements PagoDocenteService {
     }
 
     @Override
-    public void genererPagoDelAnio(Docente docente, Integer anio) {
+    public void generarPagosDelAnio(Docente docente, Integer anio) {
         List<PagoDocente> pagos = new ArrayList<>();
 
         for (int mes = MES_INICIO; mes <= MES_FIN; mes++) {

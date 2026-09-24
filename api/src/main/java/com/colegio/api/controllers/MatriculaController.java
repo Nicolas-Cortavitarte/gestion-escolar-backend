@@ -25,7 +25,7 @@ import com.colegio.api.services.MatriculaService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/matriculas")
+@RequestMapping("/api/v1/matriculas")
 public class MatriculaController {
 
     private final MatriculaService matriculaService;

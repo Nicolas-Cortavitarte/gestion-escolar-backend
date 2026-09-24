@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/estudiantes/{estudianteId}/reportes-conducta")
+@RequestMapping("/api/v1/estudiantes/{estudianteId}/reportes-conducta")
 public class ReporteConductaController {
 
     private final ReporteConductaService reporteConductaService;

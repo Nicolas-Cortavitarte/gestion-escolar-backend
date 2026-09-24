@@ -12,7 +12,7 @@ import com.colegio.api.dtos.PensionResponseDto;
 import com.colegio.api.services.PensionService;
 
 @RestController
-@RequestMapping("/api/pensiones")
+@RequestMapping("/api/v1/pensiones")
 public class PensionController {
 
     private final PensionService pensionService;

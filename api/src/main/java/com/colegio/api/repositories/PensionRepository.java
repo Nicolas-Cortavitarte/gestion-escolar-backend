@@ -1,5 +1,6 @@
 package com.colegio.api.repositories;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -19,4 +20,8 @@ public interface PensionRepository extends JpaRepository<Pension, UUID> {
 
     // Obtener pensiones de una matrícula con estado específico
     List<Pension> findByMatriculaIdAndEstado(UUID matriculaId, EstadoPension estado);
+
+    // Obtener pensiones por estado y rango de fechas de pago
+    List<Pension> findByEstadoAndFechaPagoBetween(EstadoPension estado, OffsetDateTime fechaInicio,
+            OffsetDateTime fechaFin);
 }

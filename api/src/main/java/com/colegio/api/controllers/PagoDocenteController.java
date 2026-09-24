@@ -17,7 +17,7 @@ import com.colegio.api.dtos.PagoDocenteResponseDto;
 import com.colegio.api.services.PagoDocenteService;
 
 @RestController
-@RequestMapping("/api/pagos-docentes")
+@RequestMapping("/api/v1/pagos-docentes")
 public class PagoDocenteController {
 
     private final PagoDocenteService pagoDocenteService;

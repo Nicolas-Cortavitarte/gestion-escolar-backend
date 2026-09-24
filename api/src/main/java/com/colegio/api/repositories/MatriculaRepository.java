@@ -1,5 +1,6 @@
 package com.colegio.api.repositories;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -18,4 +19,8 @@ public interface MatriculaRepository extends JpaRepository<Matricula, UUID> {
 
     // Obtener alumnos de un grado específico en un año lectivo
     List<Matricula> findByAnioLectivoAndNivelAndGrado(Integer anioLectivo, String nivel, String grado);
+
+    // Obtener matrículas pagadas en un rango de fechas
+    List<Matricula> findByMatriculaPagadaTrueAndFechaPagoMatriculaBetween(OffsetDateTime fechaInicio,
+            OffsetDateTime fechaFin);
 }

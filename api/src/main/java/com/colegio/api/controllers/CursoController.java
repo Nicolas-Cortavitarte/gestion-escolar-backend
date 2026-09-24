@@ -60,4 +60,9 @@ public class CursoController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/docente/{id}")
+    public ResponseEntity<List<CursoResponseDto>> obtenerPorDocente(@PathVariable UUID id) {
+        return ResponseEntity.ok(cursoService.obtenerPorDocente(id));
+    }
+
 }

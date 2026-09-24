@@ -18,4 +18,6 @@ public interface CursoService {
 
     public void eliminar(UUID id);
 
+    public List<CursoResponseDto> obtenerPorDocente(UUID id);
+
 }

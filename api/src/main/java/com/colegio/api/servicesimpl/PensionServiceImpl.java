@@ -114,4 +114,12 @@ public class PensionServiceImpl implements PensionService {
 
         return pensionMapper.toDto(pensionRepository.save(pension));
     }
+
+    @Override
+    public List<PensionResponseDto> obtenerPorEstudiante(UUID id) {
+        return pensionRepository.findByMatricula_EstudianteId(id)
+                .stream()
+                .map(pensionMapper::toDto)
+                .collect(Collectors.toList());
+    }
 }

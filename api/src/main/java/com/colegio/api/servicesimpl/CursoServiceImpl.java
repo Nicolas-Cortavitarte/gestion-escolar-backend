@@ -93,4 +93,12 @@ public class CursoServiceImpl implements CursoService {
         cursoRepository.deleteById(id);
     }
 
+    @Override
+    public List<CursoResponseDto> obtenerPorDocente(UUID id) {
+        return cursoRepository.findByDocenteId(id)
+                .stream()
+                .map(cursoMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
 }

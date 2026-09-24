@@ -24,4 +24,7 @@ public interface PensionRepository extends JpaRepository<Pension, UUID> {
     // Obtener pensiones por estado y rango de fechas de pago
     List<Pension> findByEstadoAndFechaPagoBetween(EstadoPension estado, OffsetDateTime fechaInicio,
             OffsetDateTime fechaFin);
+
+    // Obtener pensiones de un estudiante
+    List<Pension> findByMatricula_EstudianteId(UUID estudianteId);
 }

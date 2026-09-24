@@ -43,4 +43,10 @@ public class PensionController {
             @RequestParam(required = false) OffsetDateTime fechaPago) {
         return ResponseEntity.ok(pensionService.marcarComoPagado(id, fechaPago));
     }
+
+    @GetMapping("/estudiante/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<PensionResponseDto>> obtenerPorEstudiante(@PathVariable UUID id) {
+        return ResponseEntity.ok(pensionService.obtenerPorEstudiante(id));
+    }
 }

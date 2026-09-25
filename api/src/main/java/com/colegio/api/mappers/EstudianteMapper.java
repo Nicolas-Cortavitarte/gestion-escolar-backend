@@ -17,6 +17,7 @@ public class EstudianteMapper {
 
         EstudianteResponseDto responseDto = new EstudianteResponseDto();
         responseDto.setId(estudiante.getId());
+        responseDto.setDni(estudiante.getDni());
         responseDto.setNombres(estudiante.getNombres());
         responseDto.setApellidos(estudiante.getApellidos());
         responseDto.setFechaNacimiento(estudiante.getFechaNacimiento());

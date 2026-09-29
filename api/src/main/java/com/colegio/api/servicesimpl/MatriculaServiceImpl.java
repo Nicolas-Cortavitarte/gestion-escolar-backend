@@ -1,6 +1,8 @@
 package com.colegio.api.servicesimpl;
 
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -55,16 +57,33 @@ public class MatriculaServiceImpl implements MatriculaService {
     }
 
     @Override
-    public MatriculaResponseDto crear(MatriculaRequestDto responseDto) {
-        Estudiante estudiante = estudianteRepository.findById(responseDto.getEstudianteId())
-                .orElseThrow(() -> new EntityNotFoundException(
-                        "Estudiante no encontrado con el ID: " + responseDto.getEstudianteId()));
+    @Transactional
+    public MatriculaResponseDto crear(MatriculaRequestDto requestDto) {
+        int anioActual = LocalDate.now(ZoneId.of("America/Lima")).getYear();
 
-        Matricula matricula = matriculaMapper.toEntity(responseDto);
+        if (!Integer.valueOf(anioActual).equals(requestDto.getAnioLectivo())) {
+            throw new IllegalArgumentException(
+                    "El año lectivo debe ser el año actual: " + anioActual);
+        }
+
+        Estudiante estudiante = estudianteRepository.findById(requestDto.getEstudianteId())
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Estudiante no encontrado con el ID: " + requestDto.getEstudianteId()));
+
+        boolean yaMatriculado = matriculaRepository
+                .existsByEstudianteIdAndAnioLectivo(
+                        requestDto.getEstudianteId(),
+                        requestDto.getAnioLectivo());
+
+        if (yaMatriculado) {
+            throw new IllegalArgumentException(
+                    "El estudiante ya tiene una matrícula para este año lectivo.");
+        }
+
+        Matricula matricula = matriculaMapper.toEntity(requestDto);
         matricula.setEstudiante(estudiante);
 
         Matricula guardada = matriculaRepository.save(matricula);
-
         pensionServiceImpl.generarPensionesDelAnio(guardada);
 
         return matriculaMapper.toDto(guardada);

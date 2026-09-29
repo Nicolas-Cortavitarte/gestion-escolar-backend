@@ -9,6 +9,7 @@ import lombok.Data;
 @Data
 public class MatriculaResponseDto {
 
+    private UUID id;
     private UUID estudianteId;
     private Integer anioLectivo;
     private String nombreEstudiante;

@@ -16,6 +16,7 @@ public class MatriculaMapper {
         }
 
         MatriculaResponseDto response = new MatriculaResponseDto();
+        response.setId(matricula.getId());
         response.setEstudianteId(matricula.getEstudiante().getId());
         response.setAnioLectivo(matricula.getAnioLectivo());
         response.setNombreEstudiante(

@@ -23,4 +23,7 @@ public interface MatriculaRepository extends JpaRepository<Matricula, UUID> {
     // Obtener matrículas pagadas en un rango de fechas
     List<Matricula> findByMatriculaPagadaTrueAndFechaPagoMatriculaBetween(OffsetDateTime fechaInicio,
             OffsetDateTime fechaFin);
+
+    // Verificar si ya existe matrícula para el estudiante en el año lectivo
+    boolean existsByEstudianteIdAndAnioLectivo(UUID estudianteId, Integer anioLectivo);
 }

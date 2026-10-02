@@ -11,4 +11,7 @@ public interface ResumenFinalEstudianteRepository extends JpaRepository<ResumenF
 
     // Obtener el resumen final de un estudiante en un año lectivo
     Optional<ResumenFinalEstudiante> findByEstudianteIdAndAnioLectivo(UUID estudianteId, Integer anioLectivo);
+
+    // Eliminar resumen final de un estudiante en un año lectivo
+    void deleteByEstudianteIdAndAnioLectivo(UUID estudianteId, Integer anioLectivo);
 }

@@ -16,6 +16,7 @@ import com.colegio.api.repositories.EstudianteRepository;
 import com.colegio.api.repositories.NotaAreaRepository;
 import com.colegio.api.repositories.NotaCompetenciaRepository;
 import com.colegio.api.services.NotaAreaCalculoService;
+import com.colegio.api.repositories.CompetenciaRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -34,15 +35,18 @@ public class NotaAreaCalculoServiceImpl implements NotaAreaCalculoService {
     private final NotaAreaRepository areaRepository;
     private final EstudianteRepository estudianteRepository;
     private final CursoRepository cursoRepository;
+    private final CompetenciaRepository catalogoCompetenciasRepository;
 
     public NotaAreaCalculoServiceImpl(NotaCompetenciaRepository competenciaRepository,
             NotaAreaRepository areaRepository,
             EstudianteRepository estudianteRepository,
-            CursoRepository cursoRepository) {
+            CursoRepository cursoRepository,
+            CompetenciaRepository catalogoCompetenciasRepository) {
         this.competenciaRepository = competenciaRepository;
         this.areaRepository = areaRepository;
         this.estudianteRepository = estudianteRepository;
         this.cursoRepository = cursoRepository;
+        this.catalogoCompetenciasRepository = catalogoCompetenciasRepository;
     }
 
     @Override
@@ -51,7 +55,19 @@ public class NotaAreaCalculoServiceImpl implements NotaAreaCalculoService {
         List<NotaCompetencia> notaCompetencias = competenciaRepository
                 .findByEstudianteIdAndCompetencia_CursoIdAndBimestre(estudianteId, cursoId, bimestre);
 
-        if (notaCompetencias.isEmpty()) {
+        long competenciasEsperadas = catalogoCompetenciasRepository
+                .findByCursoId(cursoId)
+                .size();
+
+        long competenciasEvaluadas = notaCompetencias.stream()
+                .map(n -> n.getCompetencia().getId())
+                .distinct()
+                .count();
+
+        if (competenciasEsperadas == 0
+                || competenciasEvaluadas != competenciasEsperadas) {
+            areaRepository.deleteByEstudianteIdAndCursoIdAndBimestre(
+                    estudianteId, cursoId, bimestre);
             return;
         }
 

@@ -30,4 +30,8 @@ public interface NotaCompetenciaRepository extends JpaRepository<NotaCompetencia
         // Buscar notas de un estudiante por area y bimestre
         List<NotaCompetencia> findByEstudianteIdAndCompetencia_CursoIdAndBimestre(UUID estudianteId, UUID cursoId,
                         Integer bimestre);
+
+        // Eliminar notas de un estudiante por competencia y bimestre
+        void deleteByEstudianteIdAndCompetenciaIdAndBimestre(
+                        UUID estudianteId, UUID competenciaId, Integer bimestre);
 }

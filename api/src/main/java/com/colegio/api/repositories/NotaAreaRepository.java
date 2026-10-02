@@ -19,4 +19,6 @@ public interface NotaAreaRepository extends JpaRepository<NotaArea, UUID> {
     // Obtener las notas de un alumno en un área y bimestre
     Optional<NotaArea> findByEstudianteIdAndCursoIdAndBimestre(UUID estudianteId, UUID cursoId, Integer bimestre);
 
+    // Eliminar notas de un estudiante por curso y bimestre
+    void deleteByEstudianteIdAndCursoIdAndBimestre(UUID estudianteId, UUID cursoId, Integer bimestre);
 }

@@ -15,7 +15,7 @@ public interface MatriculaRepository extends JpaRepository<Matricula, UUID> {
     List<Matricula> findByEstudianteId(UUID estudianteId);
 
     // Verificar matrícula vigente
-    Optional<Matricula> findByEstudianteAndAnioLectivo(UUID estudianteId, Integer anioLectivo);
+    Optional<Matricula> findByEstudianteIdAndAnioLectivo(UUID estudianteId, Integer anioLectivo);
 
     // Obtener alumnos de un grado específico en un año lectivo
     List<Matricula> findByAnioLectivoAndNivelAndGrado(Integer anioLectivo, String nivel, String grado);

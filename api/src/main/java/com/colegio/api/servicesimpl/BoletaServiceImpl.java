@@ -185,6 +185,7 @@ public class BoletaServiceImpl implements BoletaService {
                                         dto.setPuntualidadRespeto(r.getConductaPuntualidadRespeto());
                                         dto.setActitudAula(r.getConductaActitudAula());
                                         dto.setPresentacionAseo(r.getConductaPresentacionAseo());
+                                        dto.setCalificacionBimestre(calcularCalificacionConducta(r));
                                         dto.setInasistenciasJustificadas(r.getInasistenciasJustificadas());
                                         dto.setInasistenciasInjustificadas(r.getInasistenciasInjustificadas());
                                         dto.setTardanzasJustificadas(r.getTardanzasJustificadas());
@@ -216,6 +217,36 @@ public class BoletaServiceImpl implements BoletaService {
                 return resumenFinalRepository.findByEstudianteIdAndAnioLectivo(estudianteId, anioLectivo)
                                 .map(resumenFinalMapper::toDto)
                                 .orElse(null);
+        }
+
+        private NotaCualitativa calcularCalificacionConducta(
+                        ReporteConductaAsistencia reporte) {
+
+                NotaCualitativa puntualidad = reporte.getConductaPuntualidadRespeto();
+                NotaCualitativa actitud = reporte.getConductaActitudAula();
+                NotaCualitativa presentacion = reporte.getConductaPresentacionAseo();
+
+                if (puntualidad == null || actitud == null || presentacion == null) {
+                        return null;
+                }
+
+                Map<NotaCualitativa, Integer> valores = Map.of(
+                                NotaCualitativa.AD, 4,
+                                NotaCualitativa.A, 3,
+                                NotaCualitativa.B, 2,
+                                NotaCualitativa.C, 1);
+
+                double promedio = (valores.get(puntualidad)
+                                + valores.get(actitud)
+                                + valores.get(presentacion)) / 3.0;
+
+                if (promedio >= 3.5)
+                        return NotaCualitativa.AD;
+                if (promedio >= 2.5)
+                        return NotaCualitativa.A;
+                if (promedio >= 1.5)
+                        return NotaCualitativa.B;
+                return NotaCualitativa.C;
         }
 
 }

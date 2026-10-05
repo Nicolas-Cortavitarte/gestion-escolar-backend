@@ -2,12 +2,17 @@ package com.colegio.api.models;
 
 import java.util.UUID;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
 @Table(name = "reporte_conducta_asistencia", uniqueConstraints = {
-        @UniqueConstraint(name = "uq_estudiante_bimestre_reporte", columnNames = { "estudiante_id", "bimestre" }) })
+        @UniqueConstraint(name = "uq_estudiante_anio_bimestre_reporte", columnNames = { "estudiante_id", "anio_lectivo",
+                "bimestre" })
+})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -28,14 +33,17 @@ public class ReporteConductaAsistencia {
     private Integer bimestre;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "conducta_puntualidad_respeto")
     private NotaCualitativa conductaPuntualidadRespeto;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "conducta_actitud_aula")
     private NotaCualitativa conductaActitudAula;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "conducta_presentacion_aseo")
     private NotaCualitativa conductaPresentacionAseo;
 

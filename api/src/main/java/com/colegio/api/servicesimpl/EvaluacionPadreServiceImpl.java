@@ -46,7 +46,10 @@ public class EvaluacionPadreServiceImpl implements EvaluacionPadreService {
                 .orElseThrow(() -> new EntityNotFoundException("Estudiante no encontrado con ID: " + estudianteId));
 
         EvaluacionPadreFamilia evaluacion = evaluacionPadreRepository
-                .findByEstudianteIdAndBimestre(estudianteId, requestDto.getBimestre())
+                .findByEstudianteIdAndAnioLectivoAndBimestre(
+                        estudianteId,
+                        requestDto.getAnioLectivo(),
+                        requestDto.getBimestre())
                 .orElseGet(() -> {
                     EvaluacionPadreFamilia nueva = new EvaluacionPadreFamilia();
                     nueva.setEstudiante(estudiante);
@@ -54,6 +57,7 @@ public class EvaluacionPadreServiceImpl implements EvaluacionPadreService {
                     return nueva;
                 });
 
+        evaluacion.setAnioLectivo(requestDto.getAnioLectivo());
         evaluacion.setEnviaPuntualmenteHijo(requestDto.getEnviaPuntualmenteHijo());
         evaluacion.setApoyaTareasCasa(requestDto.getApoyaTareasCasa());
         evaluacion.setEnviaHijoUniformado(requestDto.getEnviaHijoUniformado());

@@ -20,4 +20,8 @@ public class EvaluacionPadreRequestDto {
     private NotaCualitativa enviaHijoUniformado;
     private NotaCualitativa asisteReunionesColegio;
     private NotaCualitativa cumplePagosInstitucion;
+
+    @NotNull(message = "El año lectivo es obligatorio")
+    @Min(value = 1, message = "El año lectivo debe ser positivo")
+    private Integer anioLectivo;
 }

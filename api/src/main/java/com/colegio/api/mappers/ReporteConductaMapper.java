@@ -24,6 +24,7 @@ public class ReporteConductaMapper {
         dto.setTardanzasJustificadas(entity.getTardanzasJustificadas());
         dto.setTardanzasInjustificadas(entity.getTardanzasInjustificadas());
         dto.setApreciacionTutor(entity.getApreciacionTutor());
+        dto.setAnioLectivo(entity.getAnioLectivo());
         return dto;
     }
 

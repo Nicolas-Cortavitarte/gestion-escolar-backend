@@ -35,4 +35,8 @@ public class ReporteConductaRequestDto {
     @Size(max = 1000, message = "La apreciación no puede exceder 1000 caracteres")
     private String apreciacionTutor;
 
+    @NotNull(message = "El año lectivo es obligatorio")
+    @Min(value = 1, message = "El año lectivo debe ser positivo")
+    private Integer anioLectivo;
+
 }

@@ -21,6 +21,7 @@ public class EvaluacionPadreMapper {
         dto.setEnviaHijoUniformado(entity.getEnviaHijoUniformado());
         dto.setAsisteReunionesColegio(entity.getAsisteReunionesColegio());
         dto.setCumplePagosInstitucion(entity.getCumplePagosInstitucion());
+        dto.setAnioLectivo(entity.getAnioLectivo());
         return dto;
     }
 }

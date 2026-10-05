@@ -13,6 +13,8 @@ import com.colegio.api.models.Competencia;
 import com.colegio.api.models.Curso;
 import com.colegio.api.repositories.CompetenciaRepository;
 import com.colegio.api.repositories.CursoRepository;
+import com.colegio.api.repositories.NotaAreaRepository;
+import com.colegio.api.repositories.ResumenFinalEstudianteRepository;
 import com.colegio.api.services.CompetenciaService;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -25,12 +27,17 @@ public class CompetenciaServiceImpl implements CompetenciaService {
     private final CompetenciaRepository competenciaRepository;
     private final CursoRepository cursoRepository;
     private final CompetenciaMapper competenciaMapper;
+    private final NotaAreaRepository notaAreaRepository;
+    private final ResumenFinalEstudianteRepository resumenFinalRepository;
 
     public CompetenciaServiceImpl(CompetenciaRepository competenciaRepository, CursoRepository cursoRepository,
-            CompetenciaMapper competenciaMapper) {
+            CompetenciaMapper competenciaMapper, NotaAreaRepository notaAreaRepository,
+            ResumenFinalEstudianteRepository resumenFinalRepository) {
         this.competenciaRepository = competenciaRepository;
         this.cursoRepository = cursoRepository;
         this.competenciaMapper = competenciaMapper;
+        this.notaAreaRepository = notaAreaRepository;
+        this.resumenFinalRepository = resumenFinalRepository;
     }
 
     @Override
@@ -57,7 +64,11 @@ public class CompetenciaServiceImpl implements CompetenciaService {
         Competencia competencia = competenciaMapper.toEntity(requestDto);
         competencia.setCurso(curso);
 
-        return competenciaMapper.toDto(competenciaRepository.save(competencia));
+        Competencia guardada = competenciaRepository.save(competencia);
+
+        invalidarResultadosDelCurso(curso);
+
+        return competenciaMapper.toDto(guardada);
     }
 
     @Override
@@ -77,4 +88,19 @@ public class CompetenciaServiceImpl implements CompetenciaService {
         this.competenciaRepository.deleteById(id);
     }
 
+    private void invalidarResultadosDelCurso(Curso curso) {
+        List<UUID> estudiantesAfectados = notaAreaRepository
+                .findByCursoId(curso.getId())
+                .stream()
+                .map(nota -> nota.getEstudiante().getId())
+                .distinct()
+                .collect(Collectors.toList());
+
+        notaAreaRepository.deleteByCursoId(curso.getId());
+
+        for (UUID estudianteId : estudiantesAfectados) {
+            resumenFinalRepository.deleteByEstudianteIdAndAnioLectivo(
+                    estudianteId, curso.getAnioLectivo());
+        }
+    }
 }

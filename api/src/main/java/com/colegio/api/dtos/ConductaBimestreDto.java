@@ -16,5 +16,6 @@ public class ConductaBimestreDto {
     private Integer tardanzasJustificadas;
     private Integer tardanzasInjustificadas;
     private String apreciacionTutor;
+    private NotaCualitativa calificacionBimestre;
 
 }

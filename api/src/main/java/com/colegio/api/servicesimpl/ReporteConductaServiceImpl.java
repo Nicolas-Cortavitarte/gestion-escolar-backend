@@ -46,7 +46,10 @@ public class ReporteConductaServiceImpl implements ReporteConductaService {
                 .orElseThrow(() -> new EntityNotFoundException("Estudiante no encontrado con ID: " + estudianteId));
 
         ReporteConductaAsistencia reporte = reporteConductaRepository
-                .findByEstudianteIdAndBimestre(estudianteId, requestDto.getBimestre())
+                .findByEstudianteIdAndAnioLectivoAndBimestre(
+                        estudianteId,
+                        requestDto.getAnioLectivo(),
+                        requestDto.getBimestre())
                 .orElseGet(() -> {
                     ReporteConductaAsistencia nuevo = new ReporteConductaAsistencia();
                     nuevo.setEstudiante(estudiante);
@@ -54,6 +57,7 @@ public class ReporteConductaServiceImpl implements ReporteConductaService {
                     return nuevo;
                 });
 
+        reporte.setAnioLectivo(requestDto.getAnioLectivo());
         reporte.setConductaPuntualidadRespeto(requestDto.getConductaPuntualidadRespeto());
         reporte.setConductaActitudAula(requestDto.getConductaActitudAula());
         reporte.setConductaPresentacionAseo(requestDto.getConductaPresentacionAseo());

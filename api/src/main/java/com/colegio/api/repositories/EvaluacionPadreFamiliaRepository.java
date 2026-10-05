@@ -8,15 +8,17 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.colegio.api.models.EvaluacionPadreFamilia;
 
-public interface EvaluacionPadreFamiliaRepository extends JpaRepository<EvaluacionPadreFamilia, UUID> {
+public interface EvaluacionPadreFamiliaRepository
+        extends JpaRepository<EvaluacionPadreFamilia, UUID> {
 
-    // Obtener la evaluación de un padre de familia
-    List<EvaluacionPadreFamilia> findByEstudianteIdAndAnioLectivo(UUID estudianteId, Integer anioLectivo);
+    // Obtener todas las evaluaciones de un padre de familia
+    List<EvaluacionPadreFamilia> findByEstudianteId(UUID estudianteId);
 
-    // Obtener la evaluación de un padre de familia
-    Optional<EvaluacionPadreFamilia> findByEstudianteId(UUID estudianteId);
+    // Obtener todas las evaluaciones de un padre de familia en un año lectivo
+    List<EvaluacionPadreFamilia> findByEstudianteIdAndAnioLectivo(
+            UUID estudianteId, Integer anioLectivo);
 
-    // Obtener la evaluación de un padre de familia
-    Optional<EvaluacionPadreFamilia> findByEstudianteIdAndBimestre(UUID estudianteId, Integer bimestre);
-
+    // Obtener la evaluación de un padre de familia en un año lectivo y un bimestre
+    Optional<EvaluacionPadreFamilia> findByEstudianteIdAndAnioLectivoAndBimestre(
+            UUID estudianteId, Integer anioLectivo, Integer bimestre);
 }

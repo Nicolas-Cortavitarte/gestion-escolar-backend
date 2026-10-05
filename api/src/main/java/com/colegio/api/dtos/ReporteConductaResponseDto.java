@@ -20,5 +20,6 @@ public class ReporteConductaResponseDto {
     private Integer tardanzasJustificadas;
     private Integer tardanzasInjustificadas;
     private String apreciacionTutor;
+    private Integer anioLectivo;
 
 }

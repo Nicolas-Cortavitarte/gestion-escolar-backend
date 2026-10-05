@@ -2,12 +2,17 @@ package com.colegio.api.models;
 
 import java.util.UUID;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
 @Table(name = "evaluacion_padre_familia", uniqueConstraints = {
-        @UniqueConstraint(name = "uq_estudiante_bimestre_padre", columnNames = { "estudiante_id", "bimestre" }) })
+        @UniqueConstraint(name = "uq_estudiante_anio_bimestre_padre", columnNames = { "estudiante_id", "anio_lectivo",
+                "bimestre" })
+})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -29,21 +34,26 @@ public class EvaluacionPadreFamilia {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "envia_puntualmente_hijo")
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     private NotaCualitativa enviaPuntualmenteHijo;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "apoya_tareas_casa")
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     private NotaCualitativa apoyaTareasCasa;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "envia_hijo_uniformado")
     private NotaCualitativa enviaHijoUniformado;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "asiste_reuniones_colegio")
     private NotaCualitativa asisteReunionesColegio;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "cumple_pagos_institucion")
     private NotaCualitativa cumplePagosInstitucion;
 

@@ -17,4 +17,5 @@ public class EvaluacionPadreResponseDto {
     private NotaCualitativa enviaHijoUniformado;
     private NotaCualitativa asisteReunionesColegio;
     private NotaCualitativa cumplePagosInstitucion;
+    private Integer anioLectivo;
 }

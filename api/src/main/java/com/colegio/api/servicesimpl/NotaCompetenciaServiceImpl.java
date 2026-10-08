@@ -21,7 +21,7 @@ import com.colegio.api.services.NotaFinalCalculoService;
 import com.colegio.api.models.Curso;
 import com.colegio.api.models.Matricula;
 import com.colegio.api.repositories.MatriculaRepository;
-import com.colegio.api.repositories.ResumenFinalEstudianteRepository;
+import com.colegio.api.services.ResumenFinalService;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -44,13 +44,13 @@ public class NotaCompetenciaServiceImpl implements NotaCompetenciaService {
         private final NotaAreaCalculoService notaAreaCalculoService;
         private final NotaFinalCalculoService notaFinalCalculoService;
         private final MatriculaRepository matriculaRepository;
-        private final ResumenFinalEstudianteRepository resumenFinalRepository;
+        private final ResumenFinalService resumenFinalService;
 
         public NotaCompetenciaServiceImpl(NotaCompetenciaRepository notaCompetenciaRepository,
                         EstudianteRepository estudianteRepository, CompetenciaRepository competenciaRepository,
                         NotaCompetenciaMapper notaCompetenciaMapper, NotaAreaCalculoService notaAreaCalculoService,
                         NotaFinalCalculoService notaFinalCalculoService, MatriculaRepository matriculaRepository,
-                        ResumenFinalEstudianteRepository resumenFinalRepository) {
+                        ResumenFinalService resumenFinalService) {
                 this.notaCompetenciaRepository = notaCompetenciaRepository;
                 this.estudianteRepository = estudianteRepository;
                 this.competenciaRepository = competenciaRepository;
@@ -58,7 +58,7 @@ public class NotaCompetenciaServiceImpl implements NotaCompetenciaService {
                 this.notaAreaCalculoService = notaAreaCalculoService;
                 this.notaFinalCalculoService = notaFinalCalculoService;
                 this.matriculaRepository = matriculaRepository;
-                this.resumenFinalRepository = resumenFinalRepository;
+                this.resumenFinalService = resumenFinalService;
         }
 
         @Override
@@ -128,8 +128,7 @@ public class NotaCompetenciaServiceImpl implements NotaCompetenciaService {
                 notaFinalCalculoService.recalcularPromedioFinalCompetencia(estudianteId, dto.getCompetenciaId());
                 notaFinalCalculoService.recalcularPromedioFinalArea(estudianteId, cursoId);
 
-                resumenFinalRepository.deleteByEstudianteIdAndAnioLectivo(
-                                estudianteId, curso.getAnioLectivo());
+                resumenFinalService.recalcularSiCompleto(estudianteId, curso.getAnioLectivo());
 
                 return notaCompetenciaMapper.toDto(guardada);
         }

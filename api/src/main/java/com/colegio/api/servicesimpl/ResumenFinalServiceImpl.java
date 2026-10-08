@@ -11,17 +11,17 @@ import com.colegio.api.dtos.ResumenFinalResponseDto;
 import com.colegio.api.mappers.ResumenFinalMapper;
 import com.colegio.api.models.Curso;
 import com.colegio.api.models.Estudiante;
+import com.colegio.api.models.Matricula;
 import com.colegio.api.models.NotaArea;
 import com.colegio.api.models.NotaCualitativa;
 import com.colegio.api.models.ResumenFinalEstudiante;
 import com.colegio.api.models.SituacionFinal;
+import com.colegio.api.repositories.CursoRepository;
 import com.colegio.api.repositories.EstudianteRepository;
+import com.colegio.api.repositories.MatriculaRepository;
 import com.colegio.api.repositories.NotaAreaRepository;
 import com.colegio.api.repositories.ResumenFinalEstudianteRepository;
 import com.colegio.api.services.ResumenFinalService;
-import com.colegio.api.models.Matricula;
-import com.colegio.api.repositories.CursoRepository;
-import com.colegio.api.repositories.MatriculaRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -31,6 +31,7 @@ import jakarta.transaction.Transactional;
 public class ResumenFinalServiceImpl implements ResumenFinalService {
 
         private static final int BIMESTRE_FINAL = 5;
+        private static final List<Integer> BIMESTRES_REQUERIDOS = List.of(1, 2, 3, 4, BIMESTRE_FINAL);
 
         private final ResumenFinalEstudianteRepository resumenFinalRepository;
         private final EstudianteRepository estudianteRepository;
@@ -39,7 +40,8 @@ public class ResumenFinalServiceImpl implements ResumenFinalService {
         private final CursoRepository cursoRepository;
         private final MatriculaRepository matriculaRepository;
 
-        public ResumenFinalServiceImpl(ResumenFinalEstudianteRepository resumenFinalRepository,
+        public ResumenFinalServiceImpl(
+                        ResumenFinalEstudianteRepository resumenFinalRepository,
                         EstudianteRepository estudianteRepository,
                         NotaAreaRepository notaAreaRepository,
                         ResumenFinalMapper resumenFinalMapper,
@@ -54,17 +56,32 @@ public class ResumenFinalServiceImpl implements ResumenFinalService {
         }
 
         @Override
-        public ResumenFinalResponseDto obtenerPorEstudianteYAnio(UUID estudianteId, Integer anioLectivo) {
+        public ResumenFinalResponseDto obtenerPorEstudianteYAnio(
+                        UUID estudianteId, Integer anioLectivo) {
                 ResumenFinalEstudiante resumen = resumenFinalRepository
                                 .findByEstudianteIdAndAnioLectivo(estudianteId, anioLectivo)
                                 .orElseThrow(() -> new EntityNotFoundException(
-                                                "Resumen final no encontrado para el estudiante " + estudianteId
-                                                                + " en el año " + anioLectivo));
+                                                "Resumen final no encontrado para el estudiante "
+                                                                + estudianteId + " en el año " + anioLectivo));
+
                 return resumenFinalMapper.toDto(resumen);
         }
 
         @Override
-        public ResumenFinalResponseDto calcularYGuardar(UUID estudianteId, Integer anioLectivo) {
+        public ResumenFinalResponseDto calcularYGuardar(
+                        UUID estudianteId, Integer anioLectivo) {
+                return calcular(estudianteId, anioLectivo, false);
+        }
+
+        @Override
+        public void recalcularSiCompleto(UUID estudianteId, Integer anioLectivo) {
+                calcular(estudianteId, anioLectivo, true);
+        }
+
+        private ResumenFinalResponseDto calcular(
+                        UUID estudianteId,
+                        Integer anioLectivo,
+                        boolean automatico) {
                 Estudiante estudiante = estudianteRepository.findById(estudianteId)
                                 .orElseThrow(() -> new EntityNotFoundException(
                                                 "Estudiante no encontrado con ID: " + estudianteId));
@@ -81,7 +98,10 @@ public class ResumenFinalServiceImpl implements ResumenFinalService {
                                                 matricula.getGrado());
 
                 if (cursosEsperados.isEmpty()) {
-                        throw new IllegalStateException(
+                        return manejarPendientes(
+                                        estudianteId,
+                                        anioLectivo,
+                                        automatico,
                                         "No hay cursos configurados para la matrícula del estudiante");
                 }
 
@@ -89,58 +109,52 @@ public class ResumenFinalServiceImpl implements ResumenFinalService {
                                 .map(Curso::getId)
                                 .collect(Collectors.toSet());
 
-                List<NotaArea> todasLasNotas = notaAreaRepository.findByEstudianteId(estudianteId)
+                Map<UUID, List<NotaArea>> notasPorCurso = notaAreaRepository
+                                .findByEstudianteId(estudianteId)
                                 .stream()
-                                .filter(n -> idsCursosEsperados.contains(n.getCurso().getId()))
-                                .collect(Collectors.toList());
-
-                if (todasLasNotas.isEmpty()) {
-                        throw new IllegalStateException(
-                                        "El estudiante no tiene notas registradas para el año lectivo " + anioLectivo);
-                }
-
-                Map<Curso, List<NotaArea>> notasPorCurso = todasLasNotas.stream()
-                                .collect(Collectors.groupingBy(NotaArea::getCurso));
+                                .filter(nota -> idsCursosEsperados.contains(nota.getCurso().getId()))
+                                .collect(Collectors.groupingBy(
+                                                nota -> nota.getCurso().getId()));
 
                 for (Curso curso : cursosEsperados) {
-                        if (!notasPorCurso.containsKey(curso)) {
-                                throw new IllegalStateException(
+                        List<NotaArea> notas = notasPorCurso
+                                        .getOrDefault(curso.getId(), List.of());
+
+                        boolean completo = BIMESTRES_REQUERIDOS.stream()
+                                        .allMatch(bimestre -> notas.stream()
+                                                        .anyMatch(nota -> bimestre.equals(nota.getBimestre())
+                                                                        && nota.getCalificativoArea() != null));
+
+                        if (!completo) {
+                                return manejarPendientes(
+                                                estudianteId,
+                                                anioLectivo,
+                                                automatico,
                                                 "No se puede calcular el resumen final: el área '"
                                                                 + curso.getNombre()
-                                                                + "' no tiene notas registradas");
+                                                                + "' tiene bimestres o promedio final pendientes");
                         }
                 }
 
-                for (Map.Entry<Curso, List<NotaArea>> entry : notasPorCurso.entrySet()) {
-                        long bimestresRegulares = entry.getValue().stream()
-                                        .filter(n -> n.getBimestre() >= 1 && n.getBimestre() <= 4)
-                                        .count();
-                        boolean tieneFinal = entry.getValue().stream()
-                                        .anyMatch(n -> n.getBimestre() == BIMESTRE_FINAL);
-
-                        if (bimestresRegulares < 4 || !tieneFinal) {
-                                throw new IllegalStateException(
-                                                "No se puede calcular el resumen final: el área '"
-                                                                + entry.getKey().getNombre()
-                                                                + "' tiene bimestres o promedio final pendientes de registrar");
-                        }
-                }
-
-                Map<Curso, NotaCualitativa> promedioFinalPorCurso = notasPorCurso.entrySet().stream()
+                Map<UUID, NotaCualitativa> finalesPorCurso = cursosEsperados.stream()
                                 .collect(Collectors.toMap(
-                                                Map.Entry::getKey,
-                                                entry -> entry.getValue().stream()
-                                                                .filter(n -> n.getBimestre() == BIMESTRE_FINAL)
+                                                Curso::getId,
+                                                curso -> notasPorCurso.get(curso.getId()).stream()
+                                                                .filter(nota -> Integer.valueOf(BIMESTRE_FINAL)
+                                                                                .equals(nota.getBimestre())
+                                                                                && nota.getCalificativoArea() != null)
                                                                 .findFirst()
-                                                                .map(NotaArea::getCalificativoArea)
-                                                                .orElseThrow()));
+                                                                .orElseThrow()
+                                                                .getCalificativoArea()));
 
-                boolean tieneDesaprobado = promedioFinalPorCurso.values().stream()
+                boolean tieneDesaprobado = finalesPorCurso.values().stream()
                                 .anyMatch(nota -> nota == NotaCualitativa.C);
-                boolean tieneEnRecuperacion = promedioFinalPorCurso.values().stream()
+
+                boolean tieneEnRecuperacion = finalesPorCurso.values().stream()
                                 .anyMatch(nota -> nota == NotaCualitativa.B);
 
                 SituacionFinal situacion;
+
                 if (tieneDesaprobado) {
                         situacion = SituacionFinal.DESAPROBADO;
                 } else if (tieneEnRecuperacion) {
@@ -149,15 +163,15 @@ public class ResumenFinalServiceImpl implements ResumenFinalService {
                         situacion = SituacionFinal.APROBADO;
                 }
 
-                String areasTexto = promedioFinalPorCurso.entrySet().stream()
-                                .filter(entry -> entry.getValue() == NotaCualitativa.B
-                                                || entry.getValue() == NotaCualitativa.C)
-                                .map(entry -> entry.getKey().getNombre())
+                String areasTexto = cursosEsperados.stream()
+                                .filter(curso -> {
+                                        NotaCualitativa nota = finalesPorCurso.get(curso.getId());
+                                        return nota == NotaCualitativa.B
+                                                        || nota == NotaCualitativa.C;
+                                })
+                                .map(Curso::getNombre)
+                                .sorted()
                                 .collect(Collectors.joining(", "));
-
-                if (areasTexto.isBlank()) {
-                        areasTexto = null;
-                }
 
                 ResumenFinalEstudiante resumen = resumenFinalRepository
                                 .findByEstudianteIdAndAnioLectivo(estudianteId, anioLectivo)
@@ -169,8 +183,25 @@ public class ResumenFinalServiceImpl implements ResumenFinalService {
                                 });
 
                 resumen.setSituacionFinal(situacion);
-                resumen.setAreaARecuperar(areasTexto);
+                resumen.setAreaARecuperar(
+                                areasTexto.isBlank() ? null : areasTexto);
 
-                return resumenFinalMapper.toDto(resumenFinalRepository.save(resumen));
+                return resumenFinalMapper.toDto(
+                                resumenFinalRepository.save(resumen));
+        }
+
+        private ResumenFinalResponseDto manejarPendientes(
+                        UUID estudianteId,
+                        Integer anioLectivo,
+                        boolean automatico,
+                        String mensaje) {
+                if (!automatico) {
+                        throw new IllegalStateException(mensaje);
+                }
+
+                resumenFinalRepository.deleteByEstudianteIdAndAnioLectivo(
+                                estudianteId, anioLectivo);
+
+                return null;
         }
 }

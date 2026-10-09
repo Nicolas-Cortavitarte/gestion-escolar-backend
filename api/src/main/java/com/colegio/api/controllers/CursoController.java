@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.colegio.api.dtos.CursoRequestDto;
 import com.colegio.api.dtos.CursoResponseDto;
+import com.colegio.api.security.UsuarioPrincipal;
 import com.colegio.api.services.CursoService;
 
 import jakarta.validation.Valid;
@@ -65,4 +67,14 @@ public class CursoController {
         return ResponseEntity.ok(cursoService.obtenerPorDocente(id));
     }
 
+    @GetMapping("/mis-cursos")
+    @PreAuthorize("hasRole('DOCENTE')")
+    public ResponseEntity<List<CursoResponseDto>> obtenerMisCursos(
+            @AuthenticationPrincipal UsuarioPrincipal principal) {
+
+        UUID usuarioId = principal.getUsuario().getId();
+
+        return ResponseEntity.ok(
+                cursoService.obtenerPorUsuarioDocente(usuarioId));
+    }
 }

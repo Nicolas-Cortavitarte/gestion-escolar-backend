@@ -20,4 +20,6 @@ public interface CursoService {
 
     public List<CursoResponseDto> obtenerPorDocente(UUID id);
 
+    List<CursoResponseDto> obtenerPorUsuarioDocente(UUID usuarioId);
+
 }

@@ -15,6 +15,7 @@ import com.colegio.api.repositories.CursoRepository;
 import com.colegio.api.repositories.DocenteRepository;
 import com.colegio.api.services.CursoService;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -101,4 +102,12 @@ public class CursoServiceImpl implements CursoService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<CursoResponseDto> obtenerPorUsuarioDocente(UUID usuarioId) {
+        Docente docente = docenteRepository.findByUsuario_Id(usuarioId)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "No se encontró un perfil docente asociado a tu cuenta"));
+
+        return obtenerPorDocente(docente.getId());
+    }
 }

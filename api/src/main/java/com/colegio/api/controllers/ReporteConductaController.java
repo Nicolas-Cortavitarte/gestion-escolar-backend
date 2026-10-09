@@ -29,7 +29,7 @@ public class ReporteConductaController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN','DOCENTE')")
+    @PreAuthorize("@permisoAcademicoService.puedeAcceder(#p0, #p1.anioLectivo)")
     public ResponseEntity<ReporteConductaResponseDto> registrarOActualizar(
             @PathVariable UUID estudianteId,
             @Valid @RequestBody ReporteConductaRequestDto requestDto) {

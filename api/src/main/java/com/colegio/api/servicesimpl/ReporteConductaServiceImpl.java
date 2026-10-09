@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.stereotype.Service;
 
 import com.colegio.api.dtos.ReporteConductaRequestDto;
@@ -35,6 +36,8 @@ public class ReporteConductaServiceImpl implements ReporteConductaService {
     }
 
     @Override
+    @PostFilter("@permisoAcademicoService.puedeAcceder("
+            + "filterObject.estudianteId, filterObject.anioLectivo)")
     public List<ReporteConductaResponseDto> obtenerPorEstudiante(UUID estudianteId) {
         return reporteConductaRepository.findByEstudianteId(estudianteId)
                 .stream().map(reporteConductaMapper::toDto).collect(Collectors.toList());

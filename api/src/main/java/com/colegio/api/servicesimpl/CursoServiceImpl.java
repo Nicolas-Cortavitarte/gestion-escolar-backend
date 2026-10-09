@@ -8,11 +8,13 @@ import org.springframework.stereotype.Service;
 
 import com.colegio.api.dtos.CursoRequestDto;
 import com.colegio.api.dtos.CursoResponseDto;
+import com.colegio.api.dtos.EstudianteCursoResponseDto;
 import com.colegio.api.mappers.CursoMapper;
 import com.colegio.api.models.Curso;
 import com.colegio.api.models.Docente;
 import com.colegio.api.repositories.CursoRepository;
 import com.colegio.api.repositories.DocenteRepository;
+import com.colegio.api.repositories.MatriculaRepository;
 import com.colegio.api.services.CursoService;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -25,12 +27,14 @@ public class CursoServiceImpl implements CursoService {
     private final CursoRepository cursoRepository;
     private final CursoMapper cursoMapper;
     private final DocenteRepository docenteRepository;
+    private final MatriculaRepository matriculaRepository;
 
     public CursoServiceImpl(CursoRepository cursoRepository, CursoMapper cursoMapper,
-            DocenteRepository docenteRepository) {
+            DocenteRepository docenteRepository, MatriculaRepository matriculaRepository) {
         this.cursoRepository = cursoRepository;
         this.cursoMapper = cursoMapper;
         this.docenteRepository = docenteRepository;
+        this.matriculaRepository = matriculaRepository;
     }
 
     @Override
@@ -109,5 +113,37 @@ public class CursoServiceImpl implements CursoService {
                         "No se encontró un perfil docente asociado a tu cuenta"));
 
         return obtenerPorDocente(docente.getId());
+    }
+
+    @Override
+    public List<EstudianteCursoResponseDto> obtenerEstudiantesPorCurso(
+            UUID cursoId) {
+
+        Curso curso = cursoRepository.findById(cursoId)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Curso no encontrado"));
+
+        return matriculaRepository
+                .findByAnioLectivoAndNivelAndGrado(
+                        curso.getAnioLectivo(),
+                        curso.getNivel(),
+                        curso.getGrado())
+                .stream()
+                .map(matricula -> {
+                    var estudiante = matricula.getEstudiante();
+
+                    EstudianteCursoResponseDto dto = new EstudianteCursoResponseDto();
+
+                    dto.setEstudianteId(estudiante.getId());
+                    dto.setNombreEstudiante(
+                            estudiante.getNombres() + " "
+                                    + estudiante.getApellidos());
+                    dto.setAnioLectivo(matricula.getAnioLectivo());
+                    dto.setNivel(matricula.getNivel());
+                    dto.setGrado(matricula.getGrado());
+
+                    return dto;
+                })
+                .collect(Collectors.toList());
     }
 }

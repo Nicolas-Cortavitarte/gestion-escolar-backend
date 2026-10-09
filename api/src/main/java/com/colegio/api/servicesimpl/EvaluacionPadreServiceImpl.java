@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.stereotype.Service;
 
 import com.colegio.api.dtos.EvaluacionPadreRequestDto;
@@ -35,6 +36,8 @@ public class EvaluacionPadreServiceImpl implements EvaluacionPadreService {
     }
 
     @Override
+    @PostFilter("@permisoAcademicoService.puedeAcceder("
+            + "filterObject.estudianteId, filterObject.anioLectivo)")
     public List<EvaluacionPadreResponseDto> obtenerPorEstudiante(UUID estudianteId) {
         return evaluacionPadreRepository.findByEstudianteId(estudianteId)
                 .stream().map(evaluacionPadreMapper::toDto).collect(Collectors.toList());

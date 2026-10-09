@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import com.colegio.api.dtos.CursoRequestDto;
 import com.colegio.api.dtos.CursoResponseDto;
+import com.colegio.api.dtos.EstudianteCursoResponseDto;
 
 public interface CursoService {
 
@@ -21,5 +22,7 @@ public interface CursoService {
     public List<CursoResponseDto> obtenerPorDocente(UUID id);
 
     List<CursoResponseDto> obtenerPorUsuarioDocente(UUID usuarioId);
+
+    List<EstudianteCursoResponseDto> obtenerEstudiantesPorCurso(UUID cursoId);
 
 }

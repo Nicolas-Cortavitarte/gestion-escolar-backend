@@ -22,4 +22,8 @@ public interface CursoRepository extends JpaRepository<Curso, UUID> {
 
     // Obtener cursos por año lectivo, nivel y grado
     List<Curso> findByAnioLectivoAndNivelAndGrado(Integer anioLectivo, String nivel, String grado);
+
+    // Verificar si un curso existe por docente, año lectivo, nivel y grado
+    boolean existsByDocente_Usuario_IdAndAnioLectivoAndNivelAndGrado(
+            UUID usuarioId, Integer anioLectivo, String nivel, String grado);
 }

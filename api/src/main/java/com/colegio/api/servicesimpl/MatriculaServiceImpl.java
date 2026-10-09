@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.security.access.prepost.PostFilter;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import com.colegio.api.dtos.MatriculaRequestDto;
@@ -40,6 +42,7 @@ public class MatriculaServiceImpl implements MatriculaService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public List<MatriculaResponseDto> obtenerTodos() {
         return matriculaRepository.findAll()
                 .stream()
@@ -49,6 +52,7 @@ public class MatriculaServiceImpl implements MatriculaService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public List<MatriculaResponseDto> obtenerPorEstudiante(UUID estudianteId) {
         return matriculaRepository.findByEstudianteId(estudianteId)
                 .stream()

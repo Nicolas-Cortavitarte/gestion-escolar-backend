@@ -34,7 +34,7 @@ public class EvaluacionPadreController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN','DOCENTE')")
+    @PreAuthorize("@permisoAcademicoService.puedeAcceder(#p0, #p1.anioLectivo)")
     public ResponseEntity<EvaluacionPadreResponseDto> registrar(
             @PathVariable UUID estudianteId,
             @Valid @RequestBody EvaluacionPadreRequestDto requestDto) {

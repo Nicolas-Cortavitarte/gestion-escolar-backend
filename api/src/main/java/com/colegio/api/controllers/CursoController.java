@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.colegio.api.dtos.CursoRequestDto;
 import com.colegio.api.dtos.CursoResponseDto;
+import com.colegio.api.dtos.EstudianteCursoResponseDto;
 import com.colegio.api.security.UsuarioPrincipal;
 import com.colegio.api.services.CursoService;
 
@@ -76,5 +77,13 @@ public class CursoController {
 
         return ResponseEntity.ok(
                 cursoService.obtenerPorUsuarioDocente(usuarioId));
+    }
+
+    @GetMapping("/{cursoId}/estudiantes")
+    @PreAuthorize("@permisoAcademicoService.puedeAccederCurso(#p0)")
+    public ResponseEntity<List<EstudianteCursoResponseDto>> obtenerEstudiantesPorCurso(@PathVariable UUID cursoId) {
+
+        return ResponseEntity.ok(
+                cursoService.obtenerEstudiantesPorCurso(cursoId));
     }
 }

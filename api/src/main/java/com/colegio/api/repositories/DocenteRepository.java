@@ -19,4 +19,7 @@ public interface DocenteRepository extends JpaRepository<Docente, UUID> {
 
     // Verificar si existe un Docente por DNI
     boolean existsByDni(String dni);
+
+    // Buscar Docente por ID de Usuario
+    Optional<Docente> findByUsuario_Id(UUID usuarioId);
 }

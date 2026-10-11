@@ -84,7 +84,7 @@ public class PensionServiceImpl implements PensionService {
 
     @Override
     public PensionResponseDto marcarComoPagado(UUID id, OffsetDateTime fechaPago) {
-        Pension pension = pensionRepository.findAllById(id)
+        Pension pension = pensionRepository.buscarPorIdParaActualizar(id)
                 .orElseThrow(() -> new EntityNotFoundException("Pension no encontrada"));
 
         if (pension.getEstado() == EstadoPension.PAGADO) {
@@ -98,21 +98,41 @@ public class PensionServiceImpl implements PensionService {
     }
 
     @Override
-    public PensionResponseDto actualizarMora(UUID id, BigDecimal nuevaMora) {
-        Pension pension = pensionRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Pension no encontrada"));
+    public PensionResponseDto actualizarMora(
+            UUID id,
+            BigDecimal nuevaMora) {
+
+        if (nuevaMora == null
+                || nuevaMora.compareTo(BigDecimal.ZERO) < 0) {
+
+            throw new IllegalArgumentException(
+                    "La mora debe ser un monto mayor o igual a cero.");
+        }
+
+        if (nuevaMora.stripTrailingZeros().scale() > 2) {
+            throw new IllegalArgumentException(
+                    "La mora debe tener como máximo dos decimales.");
+        }
+
+        Pension pension = pensionRepository
+                .buscarPorIdParaActualizar(id)
+                .orElseThrow(() -> new EntityNotFoundException("Pensión no encontrada"));
 
         if (pension.getEstado() == EstadoPension.PAGADO) {
-            throw new IllegalStateException("No se puede modificar la mora de una pensión ya pagada");
+            throw new IllegalStateException(
+                    "No se puede modificar la mora de una pensión pagada.");
         }
 
         pension.setMoraAcumulada(nuevaMora);
 
-        if (nuevaMora.compareTo(BigDecimal.ZERO) > 0) {
-            pension.setEstado(EstadoPension.EN_MORA);
-        }
+        pension.setEstado(
+                nuevaMora.compareTo(BigDecimal.ZERO) > 0
+                        ? EstadoPension.EN_MORA
+                        : EstadoPension.PENDIENTE);
 
-        return pensionMapper.toDto(pensionRepository.save(pension));
+        Pension actualizada = pensionRepository.saveAndFlush(pension);
+
+        return pensionMapper.toDto(actualizada);
     }
 
     @Override

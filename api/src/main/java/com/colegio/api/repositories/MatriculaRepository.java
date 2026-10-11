@@ -6,8 +6,13 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.colegio.api.models.Matricula;
+
+import jakarta.persistence.LockModeType;
 
 public interface MatriculaRepository extends JpaRepository<Matricula, UUID> {
 
@@ -26,4 +31,9 @@ public interface MatriculaRepository extends JpaRepository<Matricula, UUID> {
 
     // Verificar si ya existe matrícula para el estudiante en el año lectivo
     boolean existsByEstudianteIdAndAnioLectivo(UUID estudianteId, Integer anioLectivo);
+
+    // Buscar matrícula por id con bloqueo pesimista
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT m FROM Matricula m WHERE m.id = :id")
+    Optional<Matricula> buscarPorIdParaActualizar(@Param("id") UUID id);
 }

@@ -3,6 +3,7 @@ package com.colegio.api.controllers;
 import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,6 +25,7 @@ public class ResumenFinalController {
     }
 
     @GetMapping
+    @PreAuthorize("@permisoAcademicoService.puedeAcceder(#p0, #p1)")
     public ResponseEntity<ResumenFinalResponseDto> obtener(
             @PathVariable UUID estudianteId,
             @RequestParam Integer anioLectivo) {
@@ -31,6 +33,7 @@ public class ResumenFinalController {
     }
 
     @PostMapping("/calcular")
+    @PreAuthorize("@permisoAcademicoService.puedeAcceder(#p0, #p1)")
     public ResponseEntity<ResumenFinalResponseDto> calcular(
             @PathVariable UUID estudianteId,
             @RequestParam Integer anioLectivo) {

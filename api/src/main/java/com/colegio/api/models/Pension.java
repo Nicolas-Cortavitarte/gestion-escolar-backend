@@ -6,6 +6,7 @@ import java.time.OffsetDateTime;
 import java.util.UUID;
 
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.GeneratedColumn;
 import org.hibernate.type.SqlTypes;
 
 import jakarta.persistence.*;
@@ -16,7 +17,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "pensiones")
+@Table(name = "pensiones", uniqueConstraints = {
+        @UniqueConstraint(name = "uq_pension_matricula_mes", columnNames = { "matricula_id", "mes" })
+})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -43,6 +46,7 @@ public class Pension {
     @Column(name = "mora_acumulada", precision = 10, scale = 2)
     private BigDecimal moraAcumulada = BigDecimal.ZERO;
 
+    @GeneratedColumn("monto_base + mora_acumulada")
     @Column(name = "monto_total", insertable = false, updatable = false, precision = 10, scale = 2)
     private BigDecimal montoTotal;
 

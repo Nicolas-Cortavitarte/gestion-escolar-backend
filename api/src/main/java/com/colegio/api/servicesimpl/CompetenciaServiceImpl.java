@@ -14,6 +14,7 @@ import com.colegio.api.models.Curso;
 import com.colegio.api.repositories.CompetenciaRepository;
 import com.colegio.api.repositories.CursoRepository;
 import com.colegio.api.repositories.NotaAreaRepository;
+import com.colegio.api.repositories.NotaCompetenciaRepository;
 import com.colegio.api.repositories.ResumenFinalEstudianteRepository;
 import com.colegio.api.services.CompetenciaService;
 
@@ -29,15 +30,18 @@ public class CompetenciaServiceImpl implements CompetenciaService {
     private final CompetenciaMapper competenciaMapper;
     private final NotaAreaRepository notaAreaRepository;
     private final ResumenFinalEstudianteRepository resumenFinalRepository;
+    private final NotaCompetenciaRepository notaCompetenciaRepository;
 
     public CompetenciaServiceImpl(CompetenciaRepository competenciaRepository, CursoRepository cursoRepository,
             CompetenciaMapper competenciaMapper, NotaAreaRepository notaAreaRepository,
-            ResumenFinalEstudianteRepository resumenFinalRepository) {
+            ResumenFinalEstudianteRepository resumenFinalRepository,
+            NotaCompetenciaRepository notaCompetenciaRepository) {
         this.competenciaRepository = competenciaRepository;
         this.cursoRepository = cursoRepository;
         this.competenciaMapper = competenciaMapper;
         this.notaAreaRepository = notaAreaRepository;
         this.resumenFinalRepository = resumenFinalRepository;
+        this.notaCompetenciaRepository = notaCompetenciaRepository;
     }
 
     @Override
@@ -82,10 +86,19 @@ public class CompetenciaServiceImpl implements CompetenciaService {
 
     @Override
     public void eliminar(UUID id) {
-        if (!this.competenciaRepository.existsById(id)) {
-            throw new EntityNotFoundException("Competencia no encontrada con id: " + id);
+        Competencia competencia = competenciaRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Competencia no encontrada"));
+
+        if (notaCompetenciaRepository.existsByCompetencia_Id(id)) {
+            throw new IllegalStateException(
+                    "No se puede eliminar una competencia con notas registradas.");
         }
-        this.competenciaRepository.deleteById(id);
+
+        Curso curso = competencia.getCurso();
+
+        competenciaRepository.delete(competencia);
+        invalidarResultadosDelCurso(curso);
     }
 
     private void invalidarResultadosDelCurso(Curso curso) {

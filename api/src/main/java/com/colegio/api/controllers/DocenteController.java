@@ -23,6 +23,7 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/docentes")
+@PreAuthorize("hasRole('ADMIN')")
 public class DocenteController {
 
     private final DocenteService docenteService;

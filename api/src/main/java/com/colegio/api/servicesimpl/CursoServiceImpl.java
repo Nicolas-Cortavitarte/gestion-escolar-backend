@@ -15,7 +15,9 @@ import com.colegio.api.models.Docente;
 import com.colegio.api.repositories.CursoRepository;
 import com.colegio.api.repositories.DocenteRepository;
 import com.colegio.api.repositories.MatriculaRepository;
+import com.colegio.api.repositories.NotaCompetenciaRepository;
 import com.colegio.api.services.CursoService;
+import com.colegio.api.validaciones.ValidacionAcademica;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -28,13 +30,16 @@ public class CursoServiceImpl implements CursoService {
     private final CursoMapper cursoMapper;
     private final DocenteRepository docenteRepository;
     private final MatriculaRepository matriculaRepository;
+    private final NotaCompetenciaRepository notaCompetenciaRepository;
 
     public CursoServiceImpl(CursoRepository cursoRepository, CursoMapper cursoMapper,
-            DocenteRepository docenteRepository, MatriculaRepository matriculaRepository) {
+            DocenteRepository docenteRepository, MatriculaRepository matriculaRepository,
+            NotaCompetenciaRepository notaCompetenciaRepository) {
         this.cursoRepository = cursoRepository;
         this.cursoMapper = cursoMapper;
         this.docenteRepository = docenteRepository;
         this.matriculaRepository = matriculaRepository;
+        this.notaCompetenciaRepository = notaCompetenciaRepository;
     }
 
     @Override
@@ -52,17 +57,31 @@ public class CursoServiceImpl implements CursoService {
         return cursoMapper.toDto(curso);
     }
 
+    private Docente obtenerDocenteActivo(UUID docenteId) {
+        Docente docente = docenteRepository.findById(docenteId)
+                .orElseThrow(() -> new EntityNotFoundException("Docente no encontrado"));
+
+        if (docente.getUsuario() == null
+                || !Boolean.TRUE.equals(docente.getUsuario().getActivo())) {
+
+            throw new IllegalStateException(
+                    "No se puede asignar un curso a un docente inactivo.");
+        }
+
+        return docente;
+    }
+
     @Override
     public CursoResponseDto crear(CursoRequestDto cursoRequestDto) {
+
+        ValidacionAcademica.validarNivelYGrado(
+                cursoRequestDto.getNivel(),
+                cursoRequestDto.getGrado());
 
         Curso curso = cursoMapper.toEntity(cursoRequestDto);
 
         if (cursoRequestDto.getDocenteId() != null) {
-            Docente docente = docenteRepository.findById(cursoRequestDto.getDocenteId())
-                    .orElseThrow(() -> new IllegalArgumentException(
-                            "El docente con id " + cursoRequestDto.getDocenteId() + " no existe"));
-
-            curso.setDocente(docente);
+            curso.setDocente(obtenerDocenteActivo(cursoRequestDto.getDocenteId()));
         }
 
         Curso creado = cursoRepository.save(curso);
@@ -71,17 +90,38 @@ public class CursoServiceImpl implements CursoService {
 
     @Override
     public CursoResponseDto actualizar(UUID id, CursoRequestDto cursoRequestDto) {
+
+        ValidacionAcademica.validarNivelYGrado(
+                cursoRequestDto.getNivel(),
+                cursoRequestDto.getGrado());
+
         Curso curso = cursoRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("El curso con id " + id + " no existe"));
+
+        boolean cambiaConfiguracionAcademica = !java.util.Objects.equals(
+                curso.getAnioLectivo(),
+                cursoRequestDto.getAnioLectivo())
+                || !java.util.Objects.equals(
+                        curso.getNivel(),
+                        cursoRequestDto.getNivel())
+                || !java.util.Objects.equals(
+                        curso.getGrado(),
+                        cursoRequestDto.getGrado());
+
+        if (cambiaConfiguracionAcademica
+                && notaCompetenciaRepository
+                        .existsByCompetencia_Curso_Id(id)) {
+
+            throw new IllegalStateException(
+                    "Este curso ya tiene notas registradas. "
+                            + "No se puede cambiar su año lectivo, nivel o grado.");
+        }
 
         cursoMapper.updateEntityFromDto(cursoRequestDto, curso);
 
         if (cursoRequestDto.getDocenteId() != null) {
-            Docente docente = docenteRepository.findById(cursoRequestDto.getDocenteId())
-                    .orElseThrow(() -> new IllegalArgumentException(
-                            "El docente con id " + cursoRequestDto.getDocenteId() + " no existe"));
-
-            curso.setDocente(docente);
+            curso.setDocente(
+                    obtenerDocenteActivo(cursoRequestDto.getDocenteId()));
         } else {
             curso.setDocente(null);
         }
@@ -93,8 +133,14 @@ public class CursoServiceImpl implements CursoService {
     @Override
     public void eliminar(UUID id) {
         if (!cursoRepository.existsById(id)) {
-            throw new IllegalArgumentException("El curso con id " + id + " no existe");
+            throw new EntityNotFoundException("Curso no encontrado");
         }
+
+        if (notaCompetenciaRepository.existsByCompetencia_Curso_Id(id)) {
+            throw new IllegalStateException(
+                    "No se puede eliminar un curso con notas registradas.");
+        }
+
         cursoRepository.deleteById(id);
     }
 
@@ -146,4 +192,5 @@ public class CursoServiceImpl implements CursoService {
                 })
                 .collect(Collectors.toList());
     }
+
 }

@@ -13,6 +13,7 @@ import com.colegio.api.services.PensionService;
 
 @RestController
 @RequestMapping("/api/v1/pensiones")
+@PreAuthorize("hasRole('ADMIN')")
 public class PensionController {
 
     private final PensionService pensionService;

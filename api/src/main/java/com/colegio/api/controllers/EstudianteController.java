@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 
 @RestController
 @RequestMapping("/api/v1/estudiantes")
+@PreAuthorize("hasRole('ADMIN')")
 public class EstudianteController {
 
     private final EstudianteService estudianteService;

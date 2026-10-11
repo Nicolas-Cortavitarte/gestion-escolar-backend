@@ -84,7 +84,7 @@ public class PagoDocenteServiceImpl implements PagoDocenteService {
 
     @Override
     public PagoDocenteResponseDto marcarComoPagado(UUID id, OffsetDateTime fechaPago) {
-        PagoDocente pago = pagoDocenteRepository.findById(id).orElseThrow(
+        PagoDocente pago = pagoDocenteRepository.buscarPorIdParaActualizar(id).orElseThrow(
                 () -> new EntityNotFoundException("Pago no encontrado"));
 
         if (pago.getEstado() == EstadoPagoDocente.PAGADO) {

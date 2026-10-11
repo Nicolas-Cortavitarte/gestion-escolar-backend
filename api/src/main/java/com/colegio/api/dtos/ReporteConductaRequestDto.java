@@ -20,16 +20,20 @@ public class ReporteConductaRequestDto {
     private NotaCualitativa conductaActitudAula;
     private NotaCualitativa conductaPresentacionAseo;
 
-    @Min(value = 0, message = "No puede ser negativo")
+    @NotNull(message = "Las inasistencias justificadas son obligatorias")
+    @Min(value = 0, message = "Las inasistencias justificadas no pueden ser negativas")
     private Integer inasistenciasJustificadas = 0;
 
-    @Min(value = 0, message = "No puede ser negativo")
+    @NotNull(message = "Las inasistencias injustificadas son obligatorias")
+    @Min(value = 0, message = "Las inasistencias injustificadas no pueden ser negativas")
     private Integer inasistenciasInjustificadas = 0;
 
-    @Min(value = 0, message = "No puede ser negativo")
+    @NotNull(message = "Las tardanzas justificadas son obligatorias")
+    @Min(value = 0, message = "Las tardanzas justificadas no pueden ser negativas")
     private Integer tardanzasJustificadas = 0;
 
-    @Min(value = 0, message = "No puede ser negativo")
+    @NotNull(message = "Las tardanzas injustificadas son obligatorias")
+    @Min(value = 0, message = "Las tardanzas injustificadas no pueden ser negativas")
     private Integer tardanzasInjustificadas = 0;
 
     @Size(max = 1000, message = "La apreciación no puede exceder 1000 caracteres")

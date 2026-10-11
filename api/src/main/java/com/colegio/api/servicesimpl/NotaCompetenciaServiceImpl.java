@@ -23,6 +23,7 @@ import com.colegio.api.models.Matricula;
 import com.colegio.api.repositories.MatriculaRepository;
 import com.colegio.api.services.ResumenFinalService;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -62,6 +63,8 @@ public class NotaCompetenciaServiceImpl implements NotaCompetenciaService {
         }
 
         @Override
+        @PostFilter("@permisoAcademicoService.puedeLeerNotaCompetencia("
+                        + "filterObject.estudianteId, filterObject.competenciaId)")
         public List<NotaCompetenciaResponseDto> obtenerPorEstudiante(UUID estudianteId) {
                 return notaCompetenciaRepository.findByEstudianteId(estudianteId)
                                 .stream()
@@ -70,6 +73,8 @@ public class NotaCompetenciaServiceImpl implements NotaCompetenciaService {
         }
 
         @Override
+        @PostFilter("@permisoAcademicoService.puedeLeerNotaCompetencia("
+                        + "filterObject.estudianteId, filterObject.competenciaId)")
         public List<NotaCompetenciaResponseDto> obtenerPorEstudianteYBimestre(UUID estudianteId, Integer bimestre) {
                 return notaCompetenciaRepository.findByEstudianteIdAndBimestre(estudianteId, bimestre)
                                 .stream()

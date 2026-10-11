@@ -18,6 +18,7 @@ import com.colegio.api.services.PagoDocenteService;
 
 @RestController
 @RequestMapping("/api/v1/pagos-docentes")
+@PreAuthorize("hasRole('ADMIN')")
 public class PagoDocenteController {
 
     private final PagoDocenteService pagoDocenteService;

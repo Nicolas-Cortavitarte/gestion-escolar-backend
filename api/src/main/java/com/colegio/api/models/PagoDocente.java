@@ -12,7 +12,9 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "pagos_docentes")
+@Table(name = "pagos_docentes", uniqueConstraints = {
+        @UniqueConstraint(name = "uq_pago_docente_anio_mes", columnNames = { "docente_id", "anio", "mes" })
+})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -41,7 +43,7 @@ public class PagoDocente {
     @Column(name = "fecha_programada", nullable = false)
     private LocalDate fechaProgramada;
 
-    @Column(name = "fecha_pago", nullable = false)
+    @Column(name = "fecha_pago")
     private OffsetDateTime fechaPago;
 
     @Enumerated(EnumType.STRING)

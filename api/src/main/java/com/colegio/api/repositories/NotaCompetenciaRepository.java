@@ -34,4 +34,10 @@ public interface NotaCompetenciaRepository extends JpaRepository<NotaCompetencia
         // Eliminar notas de un estudiante por competencia y bimestre
         void deleteByEstudianteIdAndCompetenciaIdAndBimestre(
                         UUID estudianteId, UUID competenciaId, Integer bimestre);
+
+        // Exite al menos una nota de un curso con el id
+        boolean existsByCompetencia_Curso_Id(UUID cursoId);
+
+        // Exite al menos una nota de una competencia con el id
+        boolean existsByCompetencia_Id(UUID competenciaId);
 }

@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.colegio.api.models.RolUsuario;
 import com.colegio.api.models.Usuario;
+import com.colegio.api.repositories.CompetenciaRepository;
 import com.colegio.api.repositories.CursoRepository;
 import com.colegio.api.repositories.MatriculaRepository;
 
@@ -18,12 +19,15 @@ public class PermisoAcademicoService {
 
     private final CursoRepository cursoRepository;
     private final MatriculaRepository matriculaRepository;
+    private final CompetenciaRepository competenciaRepository;
 
     public PermisoAcademicoService(
             CursoRepository cursoRepository,
-            MatriculaRepository matriculaRepository) {
+            MatriculaRepository matriculaRepository,
+            CompetenciaRepository competenciaRepository) {
         this.cursoRepository = cursoRepository;
         this.matriculaRepository = matriculaRepository;
+        this.competenciaRepository = competenciaRepository;
     }
 
     public boolean puedeAcceder(
@@ -100,4 +104,35 @@ public class PermisoAcademicoService {
                                 curso.getDocente().getUsuario().getId()))
                 .orElse(false);
     }
+
+    public boolean puedeLeerNotaCompetencia(
+            UUID estudianteId,
+            UUID competenciaId) {
+
+        if (estudianteId == null || competenciaId == null) {
+            return false;
+        }
+
+        return competenciaRepository.findById(competenciaId)
+                .map(competencia -> puedeLeerNotaArea(
+                        estudianteId,
+                        competencia.getCurso().getId()))
+                .orElse(false);
+    }
+
+    public boolean puedeLeerNotaArea(
+            UUID estudianteId,
+            UUID cursoId) {
+
+        if (estudianteId == null || cursoId == null) {
+            return false;
+        }
+
+        return cursoRepository.findById(cursoId)
+                .map(curso -> puedeAcceder(
+                        estudianteId,
+                        curso.getAnioLectivo()))
+                .orElse(false);
+    }
+
 }

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.stereotype.Service;
 
 import com.colegio.api.dtos.NotaAreaResponseDto;
@@ -26,6 +27,8 @@ public class NotaAreaServiceImpl implements NotaAreaService {
     }
 
     @Override
+    @PostFilter("@permisoAcademicoService.puedeLeerNotaArea("
+            + "filterObject.estudianteId, filterObject.cursoId)")
     public List<NotaAreaResponseDto> obtenerPorEstudiante(UUID estudianteId) {
         return notaAreaRepository.findByEstudianteId(estudianteId)
                 .stream()
@@ -34,6 +37,8 @@ public class NotaAreaServiceImpl implements NotaAreaService {
     }
 
     @Override
+    @PostFilter("@permisoAcademicoService.puedeLeerNotaArea("
+            + "filterObject.estudianteId, filterObject.cursoId)")
     public List<NotaAreaResponseDto> obtenerPorEstudianteYBimestre(UUID estudianteId, Integer bimestre) {
         return notaAreaRepository.findByEstudianteIdAndBimestre(estudianteId, bimestre)
                 .stream()

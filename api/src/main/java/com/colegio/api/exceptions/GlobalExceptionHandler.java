@@ -81,4 +81,18 @@ public class GlobalExceptionHandler {
                         + "o haber registros relacionados.");
     }
 
+    @ExceptionHandler(LimiteLoginException.class)
+    public ResponseEntity<Object> handleLoginLimit(LimiteLoginException ex) {
+        Map<String, Object> body = new LinkedHashMap<>();
+
+        body.put("timestamp", OffsetDateTime.now().toString());
+        body.put("status", 429);
+        body.put("error", "Demasiadas solicitudes");
+        body.put("message", ex.getMessage());
+
+        return ResponseEntity.status(429)
+                .header("Retry-After", "60")
+                .body(body);
+    }
+
 }

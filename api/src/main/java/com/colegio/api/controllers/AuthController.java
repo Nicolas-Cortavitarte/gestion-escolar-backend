@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.colegio.api.dtos.LoginRequestDto;
 import com.colegio.api.dtos.LoginResponseDto;
+import com.colegio.api.exceptions.LimiteLoginException;
 import com.colegio.api.security.JwtService;
+import com.colegio.api.security.LimiteLoginService;
 import com.colegio.api.security.UsuarioPrincipal;
 
 import jakarta.validation.Valid;
@@ -21,14 +23,21 @@ public class AuthController {
 
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
+    private final LimiteLoginService limiteLoginService;
 
-    public AuthController(AuthenticationManager authenticationManager, JwtService jwtService) {
+    public AuthController(AuthenticationManager authenticationManager, JwtService jwtService,
+            LimiteLoginService limiteLoginService) {
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
+        this.limiteLoginService = limiteLoginService;
     }
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDto> login(@Valid @RequestBody LoginRequestDto requestDto) {
+        if (!limiteLoginService.permitirIntento(requestDto.getCorreo())) {
+            throw new LimiteLoginException();
+        }
+
         var authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(requestDto.getCorreo(), requestDto.getContrasena()));
 

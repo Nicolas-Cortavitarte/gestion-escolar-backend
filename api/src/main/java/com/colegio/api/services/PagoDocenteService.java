@@ -18,4 +18,6 @@ public interface PagoDocenteService {
     void generarPagosDelAnio(Docente docente, Integer anio);
 
     PagoDocenteResponseDto marcarComoPagado(UUID id, OffsetDateTime fechaPago);
+
+    void generarPagosAnuales();
 }

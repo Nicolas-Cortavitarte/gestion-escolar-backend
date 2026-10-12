@@ -4,7 +4,13 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
 import com.colegio.api.models.Docente;
+
+import jakarta.persistence.LockModeType;
 
 public interface DocenteRepository extends JpaRepository<Docente, UUID> {
 
@@ -22,4 +28,8 @@ public interface DocenteRepository extends JpaRepository<Docente, UUID> {
 
     // Buscar Docente por ID de Usuario
     Optional<Docente> findByUsuario_Id(UUID usuarioId);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT d FROM Docente d WHERE d.id = :id")
+    Optional<Docente> buscarPorIdParaActualizar(@Param("id") UUID id);
 }

@@ -2,8 +2,11 @@ package com.colegio.api.servicesimpl;
 
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -14,6 +17,7 @@ import com.colegio.api.mappers.PagoDocenteMapper;
 import com.colegio.api.models.Docente;
 import com.colegio.api.models.EstadoPagoDocente;
 import com.colegio.api.models.PagoDocente;
+import com.colegio.api.repositories.DocenteRepository;
 import com.colegio.api.repositories.PagoDocenteRepository;
 import com.colegio.api.services.PagoDocenteService;
 
@@ -30,12 +34,15 @@ public class PagoDocenteServiceImpl implements PagoDocenteService {
 
     private final PagoDocenteRepository pagoDocenteRepository;
     private final PagoDocenteMapper pagoDocenteMapper;
+    private final DocenteRepository docenteRepository;
 
     public PagoDocenteServiceImpl(
             PagoDocenteRepository pagoDocenteRepository,
-            PagoDocenteMapper pagoDocenteMapper) {
+            PagoDocenteMapper pagoDocenteMapper,
+            DocenteRepository docenteRepository) {
         this.pagoDocenteRepository = pagoDocenteRepository;
         this.pagoDocenteMapper = pagoDocenteMapper;
+        this.docenteRepository = docenteRepository;
     }
 
     @Override
@@ -61,25 +68,53 @@ public class PagoDocenteServiceImpl implements PagoDocenteService {
 
     @Override
     public void generarPagosDelAnio(Docente docente, Integer anio) {
-        List<PagoDocente> pagos = new ArrayList<>();
-
-        for (int mes = MES_INICIO; mes <= MES_FIN; mes++) {
-            PagoDocente pago = new PagoDocente();
-            pago.setDocente(docente);
-            pago.setMes(mes);
-            pago.setAnio(anio);
-            pago.setMonto(docente.getSueldoMensual());
-
-            int diaSeguro = Math.min(DIA_PAGO,
-                    LocalDate.of(anio, mes, 1).lengthOfMonth());
-            pago.setFechaProgramada(LocalDate.of(anio, mes, diaSeguro));
-
-            pago.setEstado(EstadoPagoDocente.PROGRAMADO);
-
-            pagos.add(pago);
+        if (anio == null || anio < 1 || anio > 9999) {
+            throw new IllegalArgumentException("El año no es válido.");
         }
 
-        pagoDocenteRepository.saveAll(pagos);
+        Docente actualizado = docenteRepository
+                .buscarPorIdParaActualizar(docente.getId())
+                .orElseThrow(() -> new EntityNotFoundException("Docente no encontrado"));
+
+        if (actualizado.getUsuario() == null
+                || !Boolean.TRUE.equals(
+                        actualizado.getUsuario().getActivo())) {
+
+            throw new IllegalStateException(
+                    "No se pueden generar pagos para un docente inactivo.");
+        }
+
+        Set<Integer> mesesExistentes = pagoDocenteRepository
+                .findByDocenteId(actualizado.getId())
+                .stream()
+                .filter(pago -> anio.equals(pago.getAnio()))
+                .map(PagoDocente::getMes)
+                .collect(Collectors.toSet());
+
+        List<PagoDocente> nuevos = new ArrayList<>();
+
+        for (int mes = MES_INICIO; mes <= MES_FIN; mes++) {
+            if (mesesExistentes.contains(mes)) {
+                continue;
+            }
+
+            PagoDocente pago = new PagoDocente();
+            pago.setDocente(actualizado);
+            pago.setMes(mes);
+            pago.setAnio(anio);
+            pago.setMonto(actualizado.getSueldoMensual());
+
+            LocalDate inicioMes = LocalDate.of(anio, mes, 1);
+            int diaSeguro = Math.min(
+                    DIA_PAGO, inicioMes.lengthOfMonth());
+
+            pago.setFechaProgramada(inicioMes.withDayOfMonth(diaSeguro));
+            pago.setEstado(EstadoPagoDocente.PROGRAMADO);
+
+            nuevos.add(pago);
+        }
+
+        pagoDocenteRepository.saveAll(nuevos);
     }
 
     @Override
@@ -96,4 +131,22 @@ public class PagoDocenteServiceImpl implements PagoDocenteService {
 
         return pagoDocenteMapper.toDto(pagoDocenteRepository.save(pago));
     }
+
+    @Override
+    public void generarPagosAnuales() {
+        int anio = LocalDate.now(ZoneId.of("America/Lima")).getYear();
+
+        List<Docente> activos = docenteRepository.findAll()
+                .stream()
+                .filter(docente -> docente.getUsuario() != null
+                        && Boolean.TRUE.equals(
+                                docente.getUsuario().getActivo()))
+                .sorted(Comparator.comparing(Docente::getId))
+                .collect(Collectors.toList());
+
+        for (Docente docente : activos) {
+            generarPagosDelAnio(docente, anio);
+        }
+    }
+
 }

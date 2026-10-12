@@ -91,7 +91,9 @@ public class DocenteServiceImpl implements DocenteService {
         docente.setUsuario(usuarioGuardado);
         Docente creado = docenteRepository.save(docente);
 
-        pagoDocenteService.generarPagosDelAnio(docente, LocalDate.now().getYear());
+        pagoDocenteService.generarPagosDelAnio(
+                creado,
+                LocalDate.now(java.time.ZoneId.of("America/Lima")).getYear());
 
         return docenteMapper.toDto(creado);
     }

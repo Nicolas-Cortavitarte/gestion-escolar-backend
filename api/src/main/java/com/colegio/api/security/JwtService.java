@@ -9,6 +9,8 @@ import java.util.function.Function;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.colegio.api.models.Usuario;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -23,10 +25,13 @@ public class JwtService {
     @Value("${jwt.expiration}")
     private Long expirationTime;
 
-    public String generarToken(String email, String rol) {
+    public String generarToken(Usuario usuario) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("rol", rol);
-        return construirToken(claims, email);
+
+        claims.put("rol", usuario.getRol().name());
+        claims.put("versionSesion", usuario.getVersionSesion().toString());
+
+        return construirToken(claims, usuario.getEmail());
     }
 
     private String construirToken(Map<String, Object> claims, String subject) {
@@ -47,13 +52,17 @@ public class JwtService {
         return extraerClaim(token, claims -> claims.get("rol", String.class));
     }
 
-    public boolean esTokenValido(String token, String email) {
-        String emailDelToken = extraerEmail(token);
-        return emailDelToken.equals(email) && !esTokenExpirado(token);
-    }
+    public boolean esTokenValido(String token, Usuario usuario) {
+        Claims claims = extraerTodosLosClaims(token);
 
-    private boolean esTokenExpirado(String token) {
-        return extraerClaim(token, Claims::getExpiration).before(new Date());
+        String versionSesion = claims.get("versionSesion", String.class);
+        Date vencimiento = claims.getExpiration();
+
+        return usuario.getEmail().equals(claims.getSubject())
+                && usuario.getVersionSesion() != null
+                && usuario.getVersionSesion().toString().equals(versionSesion)
+                && vencimiento != null
+                && vencimiento.after(new Date());
     }
 
     private <T> T extraerClaim(String token, Function<Claims, T> resolver) {

@@ -40,6 +40,10 @@ public class Usuario {
     @Column(name = "creado_en", updatable = false)
     private OffsetDateTime creadoEn;
 
+    @Builder.Default
+    @Column(name = "version_sesion", nullable = false)
+    private UUID versionSesion = UUID.randomUUID();
+
     @PrePersist
     protected void onCreate() {
         this.creadoEn = OffsetDateTime.now();

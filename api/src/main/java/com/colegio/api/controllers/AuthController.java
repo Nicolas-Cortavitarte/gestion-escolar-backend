@@ -34,7 +34,7 @@ public class AuthController {
 
         UsuarioPrincipal principal = (UsuarioPrincipal) authentication.getPrincipal();
         String rol = principal.getUsuario().getRol().name();
-        String token = jwtService.generarToken(principal.getUsername(), rol);
+        String token = jwtService.generarToken(principal.getUsuario());
 
         LoginResponseDto response = new LoginResponseDto();
         response.setToken(token);

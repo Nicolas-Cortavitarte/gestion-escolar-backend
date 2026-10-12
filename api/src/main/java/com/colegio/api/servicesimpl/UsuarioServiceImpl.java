@@ -17,6 +17,7 @@ import com.colegio.api.repositories.UsuarioRepository;
 import com.colegio.api.services.UsuarioService;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 
 @Service
 public class UsuarioServiceImpl implements UsuarioService {
@@ -71,15 +72,24 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
 
     @Override
+    @Transactional
     public void cambiarPassword(UUID id, CambiarPasswordDto dto) {
-        Usuario usuario = usuarioRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado con ID: " + id));
+        Usuario usuario = usuarioRepository
+                .buscarPorIdParaActualizar(id)
+                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado"));
 
-        if (!passwordEncoder.matches(dto.getPasswordActual(), usuario.getPassword())) {
-            throw new IllegalArgumentException("Contraseña actual incorrecta");
+        if (!passwordEncoder.matches(
+                dto.getPasswordActual(), usuario.getPassword())) {
+
+            throw new IllegalArgumentException(
+                    "Contraseña actual incorrecta");
         }
 
-        usuario.setPassword(passwordEncoder.encode(dto.getPasswordNueva()));
+        usuario.setPassword(
+                passwordEncoder.encode(dto.getPasswordNueva()));
+
+        usuario.setVersionSesion(UUID.randomUUID());
+
         usuarioRepository.save(usuario);
     }
 

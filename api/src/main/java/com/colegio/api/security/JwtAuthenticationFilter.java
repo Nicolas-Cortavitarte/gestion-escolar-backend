@@ -77,8 +77,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                             "La cuenta no está habilitada para acceder");
                 }
 
-                if (!jwtService.esTokenValido(token, usuario.getUsername())) {
-                    throw new BadCredentialsException("Token inválido");
+                if (!(usuario instanceof UsuarioPrincipal principal)
+                        || !jwtService.esTokenValido(token, principal.getUsuario())) {
+
+                    throw new BadCredentialsException(
+                            "Token inválido o sesión revocada");
                 }
 
                 UsernamePasswordAuthenticationToken autenticacion = new UsernamePasswordAuthenticationToken(
